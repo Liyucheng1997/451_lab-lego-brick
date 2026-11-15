@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <title>暖光积木屋</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='24' width='52' height='30' rx='5' fill='%23e5793a'/%3E%3Crect x='12' y='14' width='14' height='12' rx='4' fill='%23f2a35f'/%3E%3Crect x='38' y='14' width='14' height='12' rx='4' fill='%23f2a35f'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+    <div id="vignette"></div>
+
+    <!-- 加载 -->
+    <div id="loading">
+      <div class="loading-card">
+        <div class="loading-bricks"><i></i><i></i><i></i></div>
+        <div class="loading-text">正在擦亮每一颗凸点…</div>
+      </div>
+    </div>
+
+    <!-- 主菜单 -->
+    <section id="menu" class="screen hidden">
+      <div class="menu-card">
+        <div class="logo">
+          <div class="logo-brick"><span></span><span></span><span></span><span></span></div>
+          <div>
+            <h1>暖光积木屋</h1>
+            <p class="subtitle">午后的阳光洒在书桌上，搭一个属于你的小世界</p>
+          </div>
+        </div>
+        <div class="mode-list">
+          <button class="mode-card" data-mode="build">
+            <div class="mode-icon build"></div>
+            <div class="mode-text">
+              <b>建造模式</b>
+              <span>跟着图纸一步一步，拼出小鸭子、小汽车和温馨小屋</span>
+            </div>
+            <i class="arrow">›</i>
+          </button>
+          <button class="mode-card" data-mode="free">
+            <div class="mode-icon free"></div>
+            <div class="mode-text">
+              <b>自由模式</b>
+              <span>没有限制，40 多种积木、24 种颜色，想搭什么就搭什么</span>
+            </div>
+            <i class="arrow">›</i>
+          </button>
+          <button class="mode-card" data-mode="level">
+            <div class="mode-icon level"></div>
+            <div class="mode-text">
+              <b>闯关模式</b>
+              <span>用有限的积木摘星星、架桥、修屋顶，解开 10 个小谜题</span>
+            </div>
+            <i class="arrow">›</i>
+          </button>
+        </div>
+        <div class="menu-foot">
+          <button class="chip" id="menu-time"></button>
+          <button class="chip" id="menu-settings">设置</button>
+          <button class="chip" id="menu-help">操作说明</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 图纸选择 -->
+    <section id="select-build" class="screen modal-screen hidden">
+      <div class="sheet">
+        <header>
+          <h2>选择一张图纸</h2>
+          <button class="icon-btn close" data-close>×</button>
+        </header>
+        <div class="bp-grid" id="bp-grid"></div>
+      </div>
+    </section>
+
+    <!-- 关卡选择 -->
+    <section id="select-level" class="screen modal-screen hidden">
+      <div class="sheet">
+        <header>
+          <h2>闯关地图</h2>
+          <span class="star-total" id="star-total"></span>
+          <button class="icon-btn close" data-close>×</button>
+        </header>
+        <div class="lv-grid" id="lv-grid"></div>
+      </div>
+    </section>
+
+    <!-- 游戏界面 -->
+    <section id="hud" class="hidden">
+      <div class="topbar">
+        <div class="tb-left">
+          <button class="icon-btn" id="btn-back" title="返回主菜单 (Esc)"></button>
+          <div class="mode-chip" id="mode-chip"></div>
+        </div>
+        <div class="tb-right" id="tb-right">
+          <button class="icon-btn" id="btn-undo" title="撤销 (Ctrl+Z)"></button>
+          <button class="icon-btn" id="btn-redo" title="重做 (Ctrl+Y)"></button>
+          <span class="sep"></span>
+          <button class="icon-btn free-only" id="btn-clear" title="清空"></button>
+          <button class="icon-btn free-only" id="btn-export" title="导出作品"></button>
+          <button class="icon-btn free-only" id="btn-import" title="导入作品"></button>
+          <span class="sep free-only"></span>
+          <button class="icon-btn" id="btn-time" title="切换时间"></button>
+          <button class="icon-btn" id="btn-cam" title="重置视角 (F)"></button>
+          <button class="icon-btn" id="btn-photo" title="拍照"></button>
+          <button class="icon-btn" id="btn-help" title="操作说明"></button>
+          <button class="icon-btn" id="btn-settings" title="设置"></button>
+        </div>
+      </div>
+
+      <aside class="picker panel" id="picker">
+        <div class="cat-tabs" id="cat-tabs"></div>
+        <div class="brick-grid" id="brick-grid"></div>
+      </aside>
+
+      <aside class="side panel hidden" id="side"></aside>
+
+      <div class="bottombar">
+        <div class="tools panel" id="tools"></div>
+        <div class="palette panel" id="palette"></div>
+      </div>
+
+      <div class="hint-line" id="hint-line">左键放置 · 右键拆除 · 拖动旋转视角 · 滚轮缩放 · R 旋转积木</div>
+      <input type="file" id="file-input" accept=".json,application/json" hidden />
+    </section>
+
+    <div id="toast"></div>
+
+    <!-- 通用弹窗 -->
+    <div id="modal" class="modal-screen hidden">
+      <div class="sheet small" id="modal-body"></div>
+    </div>
+  </body>
+  <script type="module" src="/src/main.js"></script>
+</html>
